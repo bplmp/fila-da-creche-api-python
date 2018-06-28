@@ -18,29 +18,20 @@ try:
     )""")
     cur.execute("DROP TABLE IF EXISTS unidades_educacionais_ativas")
     cur.execute("""CREATE TABLE unidades_educacionais_ativas(
-    cd_unidade_educacao                 character(6),
-    nm_unidade_educacao                 character varying(60),
-    nm_exibicao_unidade_educacao        character varying(60),
-    tp_situacao_unidade                 integer,
-    tp_unidade_educacao                 integer,
-    cd_unidade_administrativa           character(6),
-    nm_unidade_administrativa           character varying(60),
-    nm_exibicao_unidade_administrativa  character varying(60),
-    dc_tipo_unidade_educacao            character varying(25),
-    tp_escola                           integer,
-    sg_tp_escola                        character varying(12),
-    sg_tipo_situacao_unidade            character varying(10),
-    nm_distrito                         text,
-    nm_micro_regiao                     character varying(40),
-    cd_micro_regiao                     integer,
-    cd_distrito_mec                     text,
-    cd_sub_prefeitura                   integer,
-    dc_sub_prefeitura                   character varying(35),
-    cd_latitude                         double precision,
-    cd_longitude                        double precision,
-    nu_turmas_2018                      bigint,
-    nu_ambientes_2018                   bigint,
-    nu_vagas_oferecidas_2018            bigint
+    cd_unidade_educacao character varying(60),
+    nm_exibicao_unidade_educacao character varying(255),
+    nm_unidade_educacao character varying(255),
+    tp_escola integer,
+    sg_tp_escola character varying(60),
+    cd_latitude float,
+    cd_longitude float,
+    endereco_completo character varying(255),
+    vagas_cd_serie_1 integer,
+    vagas_cd_serie_4 integer,
+    vagas_cd_serie_27 integer,
+    vagas_cd_serie_28 integer,
+    telefones character varying(60)[],
+    sg_tipo_situacao_unidade character varying(60)
     )""")
     con.commit()
     con.close()

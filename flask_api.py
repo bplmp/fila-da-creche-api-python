@@ -3,7 +3,14 @@
 from flask import Flask, jsonify, abort, request, make_response, url_for
 # from flask_httpauth import HTTPBasicAuth
 
+# HACK:
+from flask_cors import CORS, cross_origin
+
 app = Flask(__name__, static_url_path = "")
+
+# HACK:
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 # auth = HTTPBasicAuth()
 
 # @auth.get_password
@@ -42,7 +49,24 @@ def not_found(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
-@app.route('/v1/schoolradius/<string:lat>/<string:lon>', methods = ['GET'])
+# http://localhost:5000/v1/schools/id/091383
+@app.route('/v1/schools/id/<string:cd_unidade_educacao>', methods = ['GET'])
+# @auth.login_required
+def get_school_id(cd_unidade_educacao):
+    try:
+        if validate_school_id_request(cd_unidade_educacao):
+            cur.execute(f"""SELECT *
+            FROM unidades_educacionais_ativas
+            WHERE cd_unidade_educacao = '{cd_unidade_educacao}'""")
+            schools = cur.fetchall()
+            return jsonify( { 'results': schools } )
+        else:
+            abort(400)
+    except Exception as e:
+        print(e)
+        abort(400)
+
+@app.route('/v1/schools/radius/<string:lon>/<string:lat>', methods = ['GET'])
 # @auth.login_required
 def get_schoolradius(lat, lon):
     try:
@@ -59,7 +83,9 @@ def get_schoolradius(lat, lon):
         abort(400)
 
 # sample url
-@app.route('/v1/schoolradiuswait/<string:lat>/<string:lon>/<int:cd_serie>', methods = ['GET'])
+# http://localhost:5000/v1/schoolradiuswait/27/-46.677023599999984/-23.5814295
+@app.route('/v1/schools/radius/wait/<string:lon>/<string:lat>/<int:cd_serie>', methods = ['GET'])
+@cross_origin()
 # @auth.login_required
 def get_schoolradiuswait(lat, lon, cd_serie):
     try:
@@ -73,16 +99,14 @@ def get_schoolradiuswait(lat, lon, cd_serie):
               AND s.cd_serie_ensino = {cd_serie}
             """)
             rowsWait = cur.fetchall()
-            # FIXME: fix filter by schools; right now it only shows if there is some wait for that cd_serie, but maybe there's no wait
             cur.execute(f"""
-            SELECT count(DISTINCT u.cd_unidade_educacao) FROM unidades_educacionais_ativas AS u
-            LEFT JOIN solicitacao_matricula_grade_dw AS s
-            ON u.cd_unidade_educacao::integer = s.cd_unidade_educacao
+            SELECT *, (ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326)) / 1000) as distance FROM unidades_educacionais_ativas AS u
             WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {searchRadius})
-              AND s.cd_serie_ensino = {cd_serie}
+              AND u.vagas_cd_serie_{cd_serie} IS NOT NULL
+            ORDER BY distance
             """)
             rowsSchools = cur.fetchall()
-            results = {'wait': rowsWait[0]['count'], 'schools': rowsSchools[0]['count']}
+            results = {'wait': rowsWait[0]['count'], 'schools': rowsSchools}
             return jsonify( { 'results': results } )
         else:
             abort(400)
@@ -92,6 +116,12 @@ def get_schoolradiuswait(lat, lon, cd_serie):
 
 def validate_wait_request(lat, lon, cd_serie=1):
     if float(lat) and float(lon) and (cd_serie in [1, 4, 27, 28]):
+        return True
+    else:
+        return False
+
+def validate_school_id_request(id):
+    if float(id):
         return True
     else:
         return False
