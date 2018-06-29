@@ -7,4 +7,4 @@
 
 # Docker
 
-- connect to db (from the outisde, port is mapped to 5433): ` psql -h localhost -p 5433 -U docker -W`
+- connect to db (from the outisde, port is mapped to 5433): `psql -h localhost -p 5433 -U docker -W`

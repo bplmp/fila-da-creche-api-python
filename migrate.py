@@ -1,20 +1,25 @@
 import psycopg2
 import sys
+import os
 
-import dotenv_variables
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 
 try:
-    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
+    con = psycopg2.connect(dbname=POSTGRES_DBNAME, user=POSTGRES_USER, host=POSTGRES_HOST, password=POSTGRES_PASSWORD)
     cur = con.cursor()
     # cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw")
     cur.execute("""CREATE TABLE IF NOT EXISTS solicitacao_matricula_grade_dw(
-    cd_solicitacao_matricula_random INTEGER,
-    cd_serie_ensino INTEGER,
-    cd_solicitacao_matricula_grade_distancia INTEGER,
-    cd_unidade_educacao INTEGER,
-    in_elegivel_compatibilizacao VARCHAR(20),
-    in_grade_ano_corrente VARCHAR(20),
-    in_grade_ano_seguinte VARCHAR(20)
+    cd_solicitacao_matricula_random integer,
+    cd_serie_ensino integer,
+    cd_solicitacao_matricula_grade_distancia integer,
+    cd_unidade_educacao integer,
+    in_elegivel_compatibilizacao character varying(20),
+    in_grade_ano_corrente character varying(20),
+    in_grade_ano_seguinte character varying(20),
+    qt_distancia integer
     )""")
     # cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw_atualizacao")
     cur.execute("""CREATE TABLE IF NOT EXISTS solicitacao_matricula_grade_dw_atualizacao(
@@ -50,6 +55,11 @@ try:
     sg_tipo_situacao_unidade character varying(60)
     )""")
     cur.execute("CREATE EXTENSION IF NOT EXISTS postgis")
+    cur.execute("ALTER TABLE unidades_educacionais_ativas_endereco_contato ADD COLUMN IF NOT EXISTS geom geometry(Point, 4326)")
+    cur.execute("""UPDATE unidades_educacionais_ativas_endereco_contato
+    SET geom = ST_SetSrid(ST_MakePoint(cd_longitude, cd_latitude), 4326)
+    WHERE geom IS NULL AND cd_longitude IS NOT NULL AND cd_latitude IS NOT NULL
+    """)
     con.commit()
     con.close()
 except Exception as e:

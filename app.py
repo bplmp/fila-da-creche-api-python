@@ -1,7 +1,15 @@
 # -*- coding: UTF-8 -*-
 
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import os
 from flask import Flask, jsonify, abort, request, make_response, url_for
 # from flask_httpauth import HTTPBasicAuth
+
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 
 # HACK:
 from flask_cors import CORS, cross_origin
@@ -11,6 +19,7 @@ app = Flask(__name__, static_url_path = "")
 # HACK:
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
 # auth = HTTPBasicAuth()
 
 # @auth.get_password
@@ -24,13 +33,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 #     return make_response(jsonify( { 'error': 'Unauthorized access' } ), 403)
 #     # return 403 instead of 401 to prevent browsers from displaying the default auth dialog
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-import dotenv_variables
-
 try:
-    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
+    con = psycopg2.connect(dbname=POSTGRES_DBNAME, user=POSTGRES_USER, host=POSTGRES_HOST, password=POSTGRES_PASSWORD)
 except Exception as e:
     print("I am unable to connect to the database.")
     print(e)
