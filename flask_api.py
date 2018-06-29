@@ -103,6 +103,11 @@ def get_schoolradiuswait(lat, lon, cd_serie):
             """)
             rowsWait = cur.fetchall()
             cur.execute(f"""
+            SELECT dt_solicitacao_atual as updated_at
+            FROM solicitacao_matricula_grade_dw_atualizacao
+            """)
+            rowsUpdated = cur.fetchall()
+            cur.execute(f"""
             SELECT *, (ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326)) / 1000) as distance FROM unidades_educacionais_ativas_endereco_contato AS u
             LEFT JOIN unidades_educacionais_infantil_vagas_serie as v
             ON u.cd_unidade_educacao = v.cd_unidade_educacao
@@ -111,7 +116,7 @@ def get_schoolradiuswait(lat, lon, cd_serie):
             ORDER BY distance
             """)
             rowsSchools = cur.fetchall()
-            results = {'wait': rowsWait[0]['count'], 'schools': rowsSchools}
+            results = {'wait': rowsWait[0]['count'], 'wait_updated_at': rowsUpdated[0]['updated_at'], 'schools': rowsSchools}
             return jsonify( { 'results': results } )
         else:
             abort(400)

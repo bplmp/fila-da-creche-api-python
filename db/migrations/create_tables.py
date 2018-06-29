@@ -16,6 +16,13 @@ try:
     in_grade_ano_corrente VARCHAR(20),
     in_grade_ano_seguinte VARCHAR(20)
     )""")
+    cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw_atualizacao")
+    cur.execute("""CREATE TABLE solicitacao_matricula_grade_dw_atualizacao(
+    an_letivo integer,
+    dt_solicitacao timestamp without time zone,
+    dt_solicitacao_atual timestamp without time zone,
+    dt_status_solicitacao timestamp without time zone
+    )""")
     cur.execute("DROP TABLE IF EXISTS unidades_educacionais_ativas_endereco_contato")
     cur.execute("""CREATE TABLE unidades_educacionais_ativas_endereco_contato(
     cd_unidade_educacao character varying(60),
@@ -29,7 +36,6 @@ try:
     telefones character varying(60)[],
     sg_tipo_situacao_unidade character varying(60)
     )""")
-    con.commit()
     cur.execute("DROP TABLE IF EXISTS unidades_educacionais_infantil_vagas_serie")
     cur.execute("""CREATE TABLE unidades_educacionais_infantil_vagas_serie(
     cd_unidade_educacao character varying(60),
