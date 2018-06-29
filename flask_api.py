@@ -39,6 +39,7 @@ except Exception as e:
 # cur = con.cursor()
 cur = con.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
 
+# 2000 meters
 searchRadius = 2000
 
 @app.errorhandler(400)
@@ -56,7 +57,7 @@ def get_school_id(cd_unidade_educacao):
     try:
         if validate_school_id_request(cd_unidade_educacao):
             cur.execute(f"""SELECT *
-            FROM unidades_educacionais_ativas
+            FROM unidades_educacionais_ativas_endereco_contato
             WHERE cd_unidade_educacao = '{cd_unidade_educacao}'""")
             schools = cur.fetchall()
             return jsonify( { 'results': schools } )
@@ -66,13 +67,15 @@ def get_school_id(cd_unidade_educacao):
         print(e)
         abort(400)
 
+# sample url
+# http://localhost:5000/v1/schools/radius/-46.677023599999984/-23.5814295
 @app.route('/v1/schools/radius/<string:lon>/<string:lat>', methods = ['GET'])
 # @auth.login_required
 def get_schoolradius(lat, lon):
     try:
         if validate_wait_request(lat, lon):
             cur.execute(f"""SELECT *
-            FROM unidades_educacionais_ativas
+            FROM unidades_educacionais_ativas_endereco_contato
             WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {searchRadius})""")
             rowsSchools = cur.fetchall()
             return jsonify( { 'results': rowsSchools } )
@@ -83,7 +86,7 @@ def get_schoolradius(lat, lon):
         abort(400)
 
 # sample url
-# http://localhost:5000/v1/schoolradiuswait/27/-46.677023599999984/-23.5814295
+# http://localhost:5000/v1/schools/radius/wait/-46.677023599999984/-23.5814295/27
 @app.route('/v1/schools/radius/wait/<string:lon>/<string:lat>/<int:cd_serie>', methods = ['GET'])
 @cross_origin()
 # @auth.login_required
@@ -92,7 +95,7 @@ def get_schoolradiuswait(lat, lon, cd_serie):
         # FIXME: validate by bouding box too
         if validate_wait_request(lat, lon, cd_serie):
             cur.execute(f"""
-            SELECT count(DISTINCT cd_solicitacao_matricula_random) FROM unidades_educacionais_ativas AS u
+            SELECT count(DISTINCT cd_solicitacao_matricula_random) FROM unidades_educacionais_ativas_endereco_contato AS u
             LEFT JOIN solicitacao_matricula_grade_dw AS s
             ON u.cd_unidade_educacao::integer = s.cd_unidade_educacao
             WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {searchRadius})
@@ -100,9 +103,11 @@ def get_schoolradiuswait(lat, lon, cd_serie):
             """)
             rowsWait = cur.fetchall()
             cur.execute(f"""
-            SELECT *, (ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326)) / 1000) as distance FROM unidades_educacionais_ativas AS u
+            SELECT *, (ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326)) / 1000) as distance FROM unidades_educacionais_ativas_endereco_contato AS u
+            LEFT JOIN unidades_educacionais_infantil_vagas_serie as v
+            ON u.cd_unidade_educacao = v.cd_unidade_educacao
             WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326), {searchRadius})
-              AND u.vagas_cd_serie_{cd_serie} IS NOT NULL
+              AND v.vagas_cd_serie_{cd_serie} IS NOT NULL
             ORDER BY distance
             """)
             rowsSchools = cur.fetchall()

@@ -6,9 +6,9 @@ import credentials
 try:
     con = psycopg2.connect(dbname=credentials.dbname, user=credentials.user, host=credentials.host, password=credentials.password)
     cur = con.cursor()
-    cur.execute("""ALTER TABLE unidades_educacionais_ativas
+    cur.execute("""ALTER TABLE unidades_educacionais_ativas_endereco_contato
     ADD COLUMN geom geometry(Point, 4326)""")
-    cur.execute("""UPDATE unidades_educacionais_ativas
+    cur.execute("""UPDATE unidades_educacionais_ativas_endereco_contato
     SET geom = ST_SetSrid(ST_MakePoint(cd_longitude, cd_latitude), 4326)""")
     con.commit()
     con.close()
