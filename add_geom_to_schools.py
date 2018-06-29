@@ -1,10 +1,10 @@
 import psycopg2
 import sys
 
-import credentials
+import dotenv_variables
 
 try:
-    con = psycopg2.connect(dbname=credentials.dbname, user=credentials.user, host=credentials.host, password=credentials.password)
+    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
     cur = con.cursor()
     cur.execute("""ALTER TABLE unidades_educacionais_ativas_endereco_contato
     ADD COLUMN geom geometry(Point, 4326)""")

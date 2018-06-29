@@ -27,10 +27,10 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-import credentials
+import dotenv_variables
 
 try:
-    con = psycopg2.connect(dbname=credentials.dbname, user=credentials.user, host=credentials.host, password=credentials.password)
+    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
 except Exception as e:
     print("I am unable to connect to the database.")
     print(e)
@@ -49,6 +49,11 @@ def not_found(error):
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
+
+@app.route('/', methods = ['GET'])
+# @auth.login_required
+def get_hello():
+    return 'hello world'
 
 # http://localhost:5000/v1/schools/id/091383
 @app.route('/v1/schools/id/<string:cd_unidade_educacao>', methods = ['GET'])
@@ -137,4 +142,5 @@ def validate_school_id_request(id):
         return False
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    # app.run(debug = True)
+    app.run(host='0.0.0.0', debug=True)

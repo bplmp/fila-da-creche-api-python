@@ -2,10 +2,10 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import sys
 
-import credentials
+import dotenv_variables
 
 try:
-    con = psycopg2.connect(dbname='postgres', user=credentials.user, host=credentials.host, password=credentials.password)
+    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = con.cursor()
     cur.execute('CREATE DATABASE ' + credentials.dbname)

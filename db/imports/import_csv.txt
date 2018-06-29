@@ -1,7 +1,0 @@
-\copy solicitacao_matricula_grade_dw FROM '~/Documents/SME/solicitacao_matricula_grade_dw.csv' DELIMITER ',' CSV HEADER
-
-\copy unidades_educacionais_ativas_endereco_contato FROM '~/Documents/SME/unidades_educacionais_ativas_endereco_contato.csv' DELIMITER ',' CSV HEADER
-
-\copy unidades_educacionais_infantil_vagas_serie FROM '~/Documents/SME/unidades_educacionais_infantil_vagas_serie.csv' DELIMITER ',' CSV HEADER
-
-\copy solicitacao_matricula_grade_dw_atualizacao FROM '~/Documents/SME/solicitacao_matricula_grade_dw_atualizacao.csv' DELIMITER ',' CSV HEADER

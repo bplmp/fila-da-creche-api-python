@@ -1,13 +1,13 @@
 import psycopg2
 import sys
 
-import credentials
+import dotenv_variables
 
 try:
-    con = psycopg2.connect(dbname=credentials.dbname, user=credentials.user, host=credentials.host, password=credentials.password)
+    con = psycopg2.connect(dbname=dotenv_variables.POSTGRES_DBNAME, user=dotenv_variables.POSTGRES_USER, host=dotenv_variables.POSTGRES_HOST, password=dotenv_variables.POSTGRES_PASSWORD)
     cur = con.cursor()
-    cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw")
-    cur.execute("""CREATE TABLE solicitacao_matricula_grade_dw(
+    # cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw")
+    cur.execute("""CREATE TABLE IF NOT EXISTS solicitacao_matricula_grade_dw(
     cd_solicitacao_matricula_random INTEGER,
     cd_serie_ensino INTEGER,
     cd_solicitacao_matricula_grade_distancia INTEGER,
@@ -16,15 +16,15 @@ try:
     in_grade_ano_corrente VARCHAR(20),
     in_grade_ano_seguinte VARCHAR(20)
     )""")
-    cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw_atualizacao")
-    cur.execute("""CREATE TABLE solicitacao_matricula_grade_dw_atualizacao(
+    # cur.execute("DROP TABLE IF EXISTS solicitacao_matricula_grade_dw_atualizacao")
+    cur.execute("""CREATE TABLE IF NOT EXISTS solicitacao_matricula_grade_dw_atualizacao(
     an_letivo integer,
     dt_solicitacao timestamp without time zone,
     dt_solicitacao_atual timestamp without time zone,
     dt_status_solicitacao timestamp without time zone
     )""")
-    cur.execute("DROP TABLE IF EXISTS unidades_educacionais_ativas_endereco_contato")
-    cur.execute("""CREATE TABLE unidades_educacionais_ativas_endereco_contato(
+    # cur.execute("DROP TABLE IF EXISTS unidades_educacionais_ativas_endereco_contato")
+    cur.execute("""CREATE TABLE IF NOT EXISTS unidades_educacionais_ativas_endereco_contato(
     cd_unidade_educacao character varying(60),
     nm_exibicao_unidade_educacao character varying(255),
     nm_unidade_educacao character varying(255),
@@ -36,8 +36,8 @@ try:
     telefones character varying(60)[],
     sg_tipo_situacao_unidade character varying(60)
     )""")
-    cur.execute("DROP TABLE IF EXISTS unidades_educacionais_infantil_vagas_serie")
-    cur.execute("""CREATE TABLE unidades_educacionais_infantil_vagas_serie(
+    # cur.execute("DROP TABLE IF EXISTS unidades_educacionais_infantil_vagas_serie")
+    cur.execute("""CREATE TABLE IF NOT EXISTS unidades_educacionais_infantil_vagas_serie(
     cd_unidade_educacao character varying(60),
     nm_exibicao_unidade_educacao character varying(255),
     nm_unidade_educacao character varying(255),
@@ -49,6 +49,7 @@ try:
     vagas_cd_serie_28 integer,
     sg_tipo_situacao_unidade character varying(60)
     )""")
+    cur.execute("CREATE EXTENSION IF NOT EXISTS postgis")
     con.commit()
     con.close()
 except Exception as e:
