@@ -11,14 +11,14 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 
-# HACK:
-from flask_cors import CORS, cross_origin
+# # HACK:
+# from flask_cors import CORS, cross_origin
 
 app = Flask(__name__, static_url_path = "")
 
-# HACK:
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+# # HACK:
+# cors = CORS(app)
+# app.config['CORS_HEADERS'] = 'Content-Type'
 
 # auth = HTTPBasicAuth()
 
@@ -97,7 +97,8 @@ def get_schoolradius(lat, lon):
 # sample url
 # http://localhost:5000/v1/schools/radius/wait/-46.677023599999984/-23.5814295/27
 @app.route('/v1/schools/radius/wait/<string:lon>/<string:lat>/<int:cd_serie>', methods = ['GET'])
-@cross_origin()
+# # HACK: 
+# @cross_origin()
 # @auth.login_required
 def get_schoolradiuswait(lat, lon, cd_serie):
     try:
