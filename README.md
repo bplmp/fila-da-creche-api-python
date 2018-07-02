@@ -4,6 +4,7 @@
 - rate limit api
 - catch in api when returns zero wait & schools
 - implement cache
+- remove select * from api for safety
 
 # Docker
 
