@@ -117,7 +117,7 @@ def init_api():
                 """)
                 rowsWait = cur.fetchall()
                 cur.execute(f"""
-                SELECT dt_solicitacao_atual as updated_at
+                SELECT dt_solicitacao as updated_at
                 FROM solicitacao_matricula_grade_dw_atualizacao
                 """)
                 rowsUpdated = cur.fetchall()
