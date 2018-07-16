@@ -99,6 +99,54 @@ def init_api():
             abort(400)
 
     # sample url
+    # http://localhost:5000/v1/schools/wait
+    @app.route('/v1/schools/wait', methods = ['GET'])
+    # @auth.login_required
+    def get_schoolwait():
+        try:
+            cur.execute(f"""
+            SELECT c.cd_unidade_educacao,
+                   c.nm_unidade_educacao,
+                   c.tp_escola,
+                   c.sg_tp_escola,
+                   c.cd_latitude,
+                   c.cd_longitude,
+                   c.geom,
+                   v.vagas_cd_serie_1,
+                   v.vagas_cd_serie_4,
+                   v.vagas_cd_serie_27,
+                   v.vagas_cd_serie_28,
+                   solicit_1,
+                   solicit_4,
+                   solicit_27,
+                   solicit_28
+            from unidades_educacionais_infantil_vagas_serie as v
+            left join unidades_educacionais_ativas_endereco_contato as c
+            ON c.cd_unidade_educacao = v.cd_unidade_educacao
+            left join
+            (SELECT
+                cd_unidade_educacao,
+                SUM(CASE WHEN cd_serie_ensino = 1 then 1 ELSE NULL END) as solicit_1,
+                SUM(CASE WHEN cd_serie_ensino = 4 then 1 ELSE NULL END) as solicit_4,
+                SUM(CASE WHEN cd_serie_ensino = 27 then 1 ELSE NULL END) as solicit_27,
+                SUM(CASE WHEN cd_serie_ensino = 28 then 1 ELSE NULL END) as solicit_28
+              FROM solicitacao_matricula_grade_dw
+              GROUP BY cd_unidade_educacao) as solicit
+            on v.cd_unidade_educacao::integer = solicit.cd_unidade_educacao
+            where (
+              v.vagas_cd_serie_1 IS NOT NULL OR
+              v.vagas_cd_serie_4 IS NOT NULL OR
+              v.vagas_cd_serie_27 IS NOT NULL OR
+              v.vagas_cd_serie_28 IS NOT NULL
+            )
+            """)
+            rowsSchoolsWait = cur.fetchall()
+            return jsonify( { 'results': rowsSchoolsWait } )
+        except Exception as e:
+            print(e)
+            abort(400)
+
+    # sample url
     # http://localhost:5000/v1/schools/radius/wait/-46.677023599999984/-23.5814295/27
     @app.route('/v1/schools/radius/wait/<string:lon>/<string:lat>/<int:cd_serie>', methods = ['GET'])
     # # HACK:
