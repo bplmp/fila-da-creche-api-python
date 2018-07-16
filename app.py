@@ -13,13 +13,13 @@ POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 
 # # HACK:
-# from flask_cors import CORS, cross_origin
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__, static_url_path = "")
 
 # # HACK:
-# cors = CORS(app)
-# app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # auth = HTTPBasicAuth()
 
