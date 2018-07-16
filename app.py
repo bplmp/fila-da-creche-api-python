@@ -6,6 +6,7 @@ import os
 from flask import Flask, jsonify, abort, request, make_response, url_for
 # from flask_httpauth import HTTPBasicAuth
 from tenacity import retry, wait_fixed
+from geojson import Feature, Point, FeatureCollection
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
@@ -141,7 +142,17 @@ def init_api():
             )
             """)
             rowsSchoolsWait = cur.fetchall()
-            return jsonify( { 'results': rowsSchoolsWait } )
+
+            features = []
+
+            for row in rowsSchoolsWait:
+                properties = row
+                feature = Feature(geometry=Point((row["cd_longitude"], row["cd_latitude"])), properties=properties)
+                features.append(feature)
+
+            collection = FeatureCollection(features)
+
+            return jsonify(collection)
         except Exception as e:
             print(e)
             abort(400)
